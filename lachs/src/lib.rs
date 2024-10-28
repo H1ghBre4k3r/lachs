@@ -1,4 +1,4 @@
-#![doc = include_str!("../../README.md")]
+#![doc = include_str!("../README.md")]
 pub use colored;
 pub use lachs_derive::token;
 pub use regex;
