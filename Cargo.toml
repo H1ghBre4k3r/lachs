@@ -1,0 +1,2 @@
+[workspace]
+members = ["lachs", "lachs_derive"]

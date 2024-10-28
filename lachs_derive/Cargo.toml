@@ -1,0 +1,17 @@
+[package]
+name = "lachs_derive"
+version = "0.1.0"
+edition = "2021"
+authors = ["Louis Meyer (H1ghBre4k3r) <h1ghbe4k3r@dev.bre4k3r.de>"]
+license = "MIT"
+readme = "README.md"
+description = "Derive macro for creating a lexer"
+repository = "https://github.com/H1ghBre4k3r/lachs"
+documentation = "https://docs.rs/lachs_derive"
+
+[lib]
+proc-macro = true
+
+[dependencies]
+quote = "1.0.37"
+syn = { version = "2.0.76", features = ["full"] }
