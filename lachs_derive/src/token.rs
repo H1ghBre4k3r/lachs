@@ -1,8 +1,8 @@
 use proc_macro::TokenStream;
 use quote::quote;
-use syn::{Expr, ExprLit, Lit, Variant};
+use syn::{punctuated::Punctuated, token::Comma, Expr, ExprLit, Ident, Lit, Variant};
 
-pub fn impl_token_macro(item: syn::Item) -> TokenStream {
+pub fn impl_token_macro(item: syn::Item, attrs: Punctuated<Ident, Comma>) -> TokenStream {
     let syn::Item::Enum(syn::ItemEnum {
         ident,
         variants,
@@ -93,7 +93,7 @@ pub fn impl_token_macro(item: syn::Item) -> TokenStream {
         .map(|(_, _, insertion)| insertion);
 
     let gen = quote! {
-        #[derive(Debug, Clone)]
+        #[derive(Debug, Clone, #attrs)]
         #vis enum #ident {
             #(#filled_variants)*
         }
