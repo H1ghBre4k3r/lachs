@@ -68,11 +68,18 @@ pub fn impl_token_macro(item: syn::Item, attrs: Punctuated<Ident, Comma>) -> Tok
         None
     });
 
-    let filled_variants = variants_with_fields.clone().map(|(ident, fields, _)| {
+    let filled_variants = variants_with_fields.clone().map(|(ident, _, _)| {
         quote! {
-            #ident {
+            #ident(#ident),
+        }
+    });
+
+    let struct_variants = variants_with_fields.clone().map(|(ident, fields, _)| {
+        quote! {
+            #[derive(Debug, Clone, #attrs)]
+            #vis struct #ident {
                 #fields
-            },
+            }
         }
     });
 
@@ -84,7 +91,7 @@ pub fn impl_token_macro(item: syn::Item, attrs: Punctuated<Ident, Comma>) -> Tok
 
     let get_position_cases = variants_with_fields.clone().map(|(ident, _, _)| {
         quote! {
-            Self::#ident { position, .. } => position.clone(),
+            Self::#ident(#ident { position, .. }) => position.clone(),
         }
     });
 
@@ -125,6 +132,8 @@ pub fn impl_token_macro(item: syn::Item, attrs: Punctuated<Ident, Comma>) -> Tok
             }
         }
 
+        #(#struct_variants)*
+
         use lachs::colored::Colorize;
         use lachs::regex::{Match, Regex};
 
@@ -133,9 +142,9 @@ pub fn impl_token_macro(item: syn::Item, attrs: Punctuated<Ident, Comma>) -> Tok
                 Self::insert(
                     &mut $entries,
                     Regex::new(&$value.escape_unicode().to_string()).unwrap(),
-                    |matched, (line, col), source| #ident::$name {
+                    |matched, (line, col), source| #ident::$name($name {
                         position: lachs::Span { start: (line, col), end: (line, (col+matched.as_str().len())), source }
-                    },
+                    }),
                 );
             };
         }
@@ -145,10 +154,10 @@ pub fn impl_token_macro(item: syn::Item, attrs: Punctuated<Ident, Comma>) -> Tok
                 Self::insert(
                     &mut $entries,
                     Regex::new($value).unwrap(),
-                    |matched, (line, col), source| #ident::$name {
+                    |matched, (line, col), source| #ident::$name($name {
                         value: matched.as_str().parse().unwrap(),
                         position: lachs::Span { start: (line, col), end: (line, (col+matched.as_str().len())), source }
-                    },
+                    }),
                 );
             };
         }

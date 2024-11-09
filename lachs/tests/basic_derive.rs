@@ -3,7 +3,7 @@ use lachs::token;
 #[token]
 enum Token {
     #[terminal("=")]
-    Eq,
+    Equals,
     #[literal("[0-9]+")]
     Number,
 }
