@@ -29,8 +29,6 @@ pub fn impl_token_macro(item: syn::Item, attrs: Punctuated<Ident, Comma>) -> Tok
                 panic!("missing matcher for #[terminal] {ident}");
             };
 
-            let _ = (ident.clone(), quote! { position: lachs::Span, });
-
             let (fields, insertions) = if *attr_ident == "terminal" {
                 (
                     quote! {
@@ -76,7 +74,7 @@ pub fn impl_token_macro(item: syn::Item, attrs: Punctuated<Ident, Comma>) -> Tok
 
     let struct_variants = variants_with_fields.clone().map(|(ident, fields, _)| {
         quote! {
-            #[derive(Debug, Clone, #attrs)]
+            #[derive(Debug, Clone)]
             #vis struct #ident {
                 #fields
             }
