@@ -1,6 +1,6 @@
 [package]
 name = "lachs_derive"
-version = "0.1.2"
+version = "0.1.3"
 edition = "2021"
 authors = ["Louis Meyer (H1ghBre4k3r) <h1ghbe4k3r@dev.bre4k3r.de>"]
 license = "MIT"
