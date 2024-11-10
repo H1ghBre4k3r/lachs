@@ -1,8 +1,8 @@
 use proc_macro::TokenStream;
 use quote::quote;
-use syn::{Expr, ExprLit, Lit, Variant};
+use syn::{punctuated::Punctuated, token::Comma, Expr, ExprLit, Ident, Lit, Variant};
 
-pub fn impl_token_macro(item: syn::Item) -> TokenStream {
+pub fn impl_token_macro(item: syn::Item, attrs: Punctuated<Ident, Comma>) -> TokenStream {
     let syn::Item::Enum(syn::ItemEnum {
         ident,
         variants,
@@ -28,8 +28,6 @@ pub fn impl_token_macro(item: syn::Item) -> TokenStream {
             else {
                 panic!("missing matcher for #[terminal] {ident}");
             };
-
-            let _ = (ident.clone(), quote! { position: lachs::Span, });
 
             let (fields, insertions) = if *attr_ident == "terminal" {
                 (
@@ -68,11 +66,18 @@ pub fn impl_token_macro(item: syn::Item) -> TokenStream {
         None
     });
 
-    let filled_variants = variants_with_fields.clone().map(|(ident, fields, _)| {
+    let filled_variants = variants_with_fields.clone().map(|(ident, _, _)| {
         quote! {
-            #ident {
+            #ident(#ident),
+        }
+    });
+
+    let struct_variants = variants_with_fields.clone().map(|(ident, fields, _)| {
+        quote! {
+            #[derive(Debug, Clone)]
+            #vis struct #ident {
                 #fields
-            },
+            }
         }
     });
 
@@ -84,7 +89,7 @@ pub fn impl_token_macro(item: syn::Item) -> TokenStream {
 
     let get_position_cases = variants_with_fields.clone().map(|(ident, _, _)| {
         quote! {
-            Self::#ident { position, .. } => position.clone(),
+            Self::#ident(#ident { position, .. }) => position.clone(),
         }
     });
 
@@ -93,7 +98,7 @@ pub fn impl_token_macro(item: syn::Item) -> TokenStream {
         .map(|(_, _, insertion)| insertion);
 
     let gen = quote! {
-        #[derive(Debug, Clone)]
+        #[derive(Debug, Clone, #attrs)]
         #vis enum #ident {
             #(#filled_variants)*
         }
@@ -125,6 +130,8 @@ pub fn impl_token_macro(item: syn::Item) -> TokenStream {
             }
         }
 
+        #(#struct_variants)*
+
         use lachs::colored::Colorize;
         use lachs::regex::{Match, Regex};
 
@@ -133,9 +140,9 @@ pub fn impl_token_macro(item: syn::Item) -> TokenStream {
                 Self::insert(
                     &mut $entries,
                     Regex::new(&$value.escape_unicode().to_string()).unwrap(),
-                    |matched, (line, col), source| #ident::$name {
+                    |matched, (line, col), source| #ident::$name($name {
                         position: lachs::Span { start: (line, col), end: (line, (col+matched.as_str().len())), source }
-                    },
+                    }),
                 );
             };
         }
@@ -145,10 +152,10 @@ pub fn impl_token_macro(item: syn::Item) -> TokenStream {
                 Self::insert(
                     &mut $entries,
                     Regex::new($value).unwrap(),
-                    |matched, (line, col), source| #ident::$name {
+                    |matched, (line, col), source| #ident::$name($name {
                         value: matched.as_str().parse().unwrap(),
                         position: lachs::Span { start: (line, col), end: (line, (col+matched.as_str().len())), source }
-                    },
+                    }),
                 );
             };
         }
