@@ -32,7 +32,7 @@ pub fn impl_token_macro(item: syn::Item, attrs: Punctuated<Ident, Comma>) -> Tok
             let (fields, insertions) = if *attr_ident == "terminal" {
                 (
                     quote! {
-                        position: lachs::Span,
+                        pub position: lachs::Span,
                     },
                     {
                         let literal = literal.value();
@@ -45,8 +45,8 @@ pub fn impl_token_macro(item: syn::Item, attrs: Punctuated<Ident, Comma>) -> Tok
             } else if *attr_ident == "literal" {
                 (
                     quote! {
-                        position: lachs::Span,
-                        value: String,
+                        pub position: lachs::Span,
+                        pub value: String,
                     },
                     {
                         let literal = literal.value();
