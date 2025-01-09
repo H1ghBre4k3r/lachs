@@ -10,6 +10,6 @@ repository = "https://github.com/H1ghBre4k3r/lachs"
 documentation = "https://docs.rs/lachs"
 
 [dependencies]
-colored = "2.1.0"
+colored = "3.0.0"
 lachs_derive = { version = "0.1.1", path = "../lachs_derive/" }
 regex = "1.11.1"
