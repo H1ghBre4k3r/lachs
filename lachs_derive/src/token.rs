@@ -73,10 +73,17 @@ pub fn impl_token_macro(item: syn::Item, attrs: Punctuated<Ident, Comma>) -> Tok
     });
 
     let struct_variants = variants_with_fields.clone().map(|(ident, fields, _)| {
+        let value = ident.to_string();
         quote! {
             #[derive(Debug, Clone)]
             #vis struct #ident {
                 #fields
+            }
+
+            impl #ident {
+                pub fn get_name(&self) -> String {
+                    String::from(#value)
+                }
             }
         }
     });
@@ -90,6 +97,13 @@ pub fn impl_token_macro(item: syn::Item, attrs: Punctuated<Ident, Comma>) -> Tok
     let get_position_cases = variants_with_fields.clone().map(|(ident, _, _)| {
         quote! {
             Self::#ident(#ident { position, .. }) => position.clone(),
+        }
+    });
+
+    let get_name_cases = variants_with_fields.clone().map(|(ident, _, _)| {
+        let value = ident.to_string();
+        quote! {
+            Self::#ident(_) => String::from(#value),
         }
     });
 
@@ -118,6 +132,12 @@ pub fn impl_token_macro(item: syn::Item, attrs: Punctuated<Ident, Comma>) -> Tok
             fn position(&self) -> lachs::Span {
                 match self {
                     #(#get_position_cases)*
+                }
+            }
+
+            pub fn get_name(&self) -> String {
+                match self {
+                    #(#get_name_cases)*
                 }
             }
 
