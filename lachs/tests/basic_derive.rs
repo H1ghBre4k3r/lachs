@@ -1,4 +1,4 @@
-use lachs::token;
+use lachs::{token, Span};
 
 #[token]
 enum Token {
@@ -8,4 +8,16 @@ enum Token {
     Number,
 }
 
-fn main() {}
+#[test]
+fn main() {
+    let eq = Token::Equals(Equals {
+        position: Span::default(),
+    });
+
+    assert_eq!(eq.get_name(), String::from("Equals"));
+
+    let eq = Equals {
+        position: Span::default(),
+    };
+    assert_eq!(eq.get_name(), String::from("Equals"));
+}
