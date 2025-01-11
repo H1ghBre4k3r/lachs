@@ -11,5 +11,5 @@ documentation = "https://docs.rs/lachs"
 
 [dependencies]
 colored = "3.0.0"
-lachs_derive = { version = "0.1.1", path = "../lachs_derive/" }
+lachs_derive = { version = "0.1.4", path = "../lachs_derive/" }
 regex = "1.11.1"
